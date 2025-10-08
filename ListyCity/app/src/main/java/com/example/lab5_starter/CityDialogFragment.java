@@ -17,6 +17,7 @@ public class CityDialogFragment extends DialogFragment {
     interface CityDialogListener {
         void updateCity(City city, String title, String year);
         void addCity(City city);
+        void deleteCity(City city);
     }
     private CityDialogListener listener;
 
@@ -51,6 +52,11 @@ public class CityDialogFragment extends DialogFragment {
         Bundle bundle = getArguments();
         City city;
 
+        if (Objects.equals(tag, "Delete City")){
+            view = getLayoutInflater().inflate(R.layout.fragment_city_delete, null);
+            editMovieName = view.findViewById(R.id.edit_city_name);
+        }
+
         if (Objects.equals(tag, "City Details") && bundle != null){
             city = (City) bundle.getSerializable("City");
             assert city != null;
@@ -61,17 +67,20 @@ public class CityDialogFragment extends DialogFragment {
             city = null;}
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        EditText finalEditMovieName = editMovieName;
         return builder
                 .setView(view)
                 .setTitle("City Details")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Continue", (dialog, which) -> {
-                    String title = editMovieName.getText().toString();
+                    String title = finalEditMovieName.getText().toString();
                     String year = editMovieYear.getText().toString();
                     if (Objects.equals(tag, "City Details")) {
                         listener.updateCity(city, title, year);
-                    } else {
+                    } else if (Objects.equals(tag, "Add City")) {
                         listener.addCity(new City(title, year));
+                    } else {
+                        listener.deleteCity(new City(title, ""));
                     }
                 })
                 .create();
